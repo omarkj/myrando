@@ -23,12 +23,34 @@ module Myrando
     def get_photos(page=1)
       resp = self.class.get("#{RANDO_API_URL}/users/#{@user_info[:user_id]}/deliveries/received.json?page=#{page}&auth_token=#{@user_info[:token]}")
       if resp.code == 200
-        json = MultiJson.decode(resp.body)
-        randos = []
-        json.each do |r|
-          randos << r
+        begin
+          json = MultiJson.decode(resp.body)
+          raise ApiError, "Rando returned an error: #{json['error']}" if not json.kind_of?(Array) and json.has_key?('error')
+          randos = []
+          json.each do |r|
+            randos << r
+          end
+          randos
+        rescue MultiJson::DecodeError
+          raise ApiError, "Rando returned an error:\nStatus: #{resp.code}\nBody: #{resp.body}"
         end
-        randos
+      else
+        raise ApiError, "Rando returned an error:\nStatus: #{resp.code}\nBody: #{resp.body}"
+      end
+    end
+    
+    def get_account_status()
+      resp = self.class.get("#{RANDO_API_URL}/account.json?auth_token=#{@user_info[:token]}")
+      if resp.code == 200
+        begin
+          json = MultiJson.decode(resp.body)
+          raise ApiError, "Rando returned an error: #{json['error']}" if json.has_key?('error')
+          return json
+        rescue MultiJson::DecodeError
+          raise ApiError, "Rando returned an error:\nStatus: #{resp.code}\nBody: #{resp.body}"
+        end
+      else
+        raise ApiError, "Rando returned an error:\nStatus: #{resp.code}\nBody: #{resp.body}"
       end
     end
 
@@ -39,7 +61,7 @@ module Myrando
       if resp.code == 200
         begin
           json = MultiJson.decode(resp.body)
-          raise ApiError, "Rando returned an error: #{json['error']}" if json['error']
+          raise ApiError, "Rando returned an error: #{json['error']}" if json.has_key?('error')
           {:token => json['authentication_token'], :user_id => json['id']}
         rescue MultiJson::DecodeError
           raise ApiError, "Rando returned an error:\nStatus: #{resp.code}\nBody: #{resp.body}"

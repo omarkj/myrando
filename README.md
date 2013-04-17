@@ -26,6 +26,14 @@ rando = Myrando::MyRando.new(:username => "your email", :password => "your passw
 rando.get_photos()
 ```
 
+### Get your account status
+
+``` ruby
+require 'myrando'
+rando = Myrando::MyRando.new(:username => "your email", :password => "your password")
+rando.get_account_status()
+```
+
 ## Contributing
 
 1. Fork it
