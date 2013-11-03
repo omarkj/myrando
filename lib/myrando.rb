@@ -2,7 +2,6 @@ require "myrando/version"
 require "httparty"
 require "multi_json"
 require "uri-handler"
-require "rubygems"
 
 module Myrando
   RANDO_API_URL = "http://rando.ustwo.se"
@@ -11,16 +10,15 @@ module Myrando
     include HTTParty
 
     def initialize()
-      @VERSION = Gem.loaded_specs['myrando'].version.to_s
     end
 
     def get(path)
-      opts = { :headers => { 'User-Agent' => "myrando/#{@VERSION}" } }
+      opts = { :headers => { 'User-Agent' => "myrando/#{Myrando::VERSION}" } }
       return self.class.get(path, opts)
     end
 
     def post(path, body)
-      opts = { :body => body, :headers => { 'User-Agent' => "myrando/#{@VERSION}" } }
+      opts = { :body => body, :headers => { 'User-Agent' => "myrando/#{Myrando::VERSION}" } }
       return self.class.post(path, opts)
     end
   end
